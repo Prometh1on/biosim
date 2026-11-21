@@ -1,0 +1,21 @@
+# Biosim dependencies. No per-package manifests exist yet (packages/*/src are
+# added to sys.path directly by conftest.py) -- this file is the first record
+# of what actually needs to be installed into .venv.
+numpy>=2.4
+scipy>=1.17
+pytest>=9.0
+pytest-cov>=7.1
+bandit>=1.9
+ruff>=0.14
+pip-audit>=2.10
+mypy>=1.19
+anthropic>=0.70
+fastapi>=0.139
+uvicorn[standard]>=0.51
+httpx>=0.28
+httpx2>=2.15  # starlette.testclient backend; plain httpx alone is deprecated there
+defusedxml>=0.7
+SALib>=1.5
+urllib3>=2.8.0  # transitive (requests, via pip-audit); floor clears PYSEC-2026-4175..4177
+pypdf>=6.19.0  # ad hoc reading of scanned paper PDFs during citation work; floor clears 2026 advisories
+matplotlib>=3.9  # figures: scripts/demo.py, scripts/plot_heldout.py

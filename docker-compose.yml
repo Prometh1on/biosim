@@ -1,0 +1,149 @@
+# Biosim local persistence layer — Track 3 (client-server DB migration).
+#
+# SCOPE: this file is PURELY ADDITIVE INFRASTRUCTURE. No Python package in
+# packages/ imports, connects to, or depends on anything defined here yet.
+# Bringing these containers up (or not) has zero effect on the existing
+# 1547-test suite or on any simulation result. That is deliberate: the
+# migration plan (infra/MIGRATION_PLAN.md) only wires application code to
+# these services behind an explicitly opt-in dual-write flag, after the
+# equivalence gates described there have passed.
+#
+# COST: local-only, zero-cost, self-hosted. No managed/cloud database, no
+# account, no API key, no egress. Both images are pulled from Docker Hub and
+# run entirely on this machine, matching the project's standing free/local
+# development rule (CLAUDE.md STRATEGIC ROADMAP, decision 2).
+#
+# CREDENTIALS: the defaults below are throwaway LOCAL DEVELOPMENT values,
+# documented as such. They are not secrets and must never be reused for
+# anything reachable from outside this machine. Override them by exporting
+# the corresponding environment variables (see infra/.env.example) — do not
+# commit a populated .env file.
+#
+# Quick start (PowerShell):  docker compose up -d
+# Full instructions:         infra/README.md
+
+services:
+
+  # ------------------------------------------------------------------
+  # PostgreSQL — kinetic parameters, provenance, confidence tiers,
+  # conflict records. Append-only by construction (see
+  # infra/postgres/003_append_only_enforcement.sql).
+  # ------------------------------------------------------------------
+  postgres:
+    image: postgres:17
+    container_name: biosim-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: biosim
+      POSTGRES_USER: biosim
+      # LOCAL DEV DEFAULT ONLY — see the CREDENTIALS note above.
+      POSTGRES_PASSWORD: ${BIOSIM_PG_PASSWORD:-biosim_local_dev_only}
+      # Byte-order collation makes text ordering deterministic and
+      # platform-independent, so an ORDER BY here cannot disagree with a
+      # developer's machine or CI. Parameter ranking never relies on text
+      # collation (it tiebreaks on the numeric insertion sequence), but
+      # pinning this removes a whole class of "works on my machine".
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      # Bound to loopback explicitly: not reachable from the local network.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - biosim_pgdata:/var/lib/postgresql/data
+      # Applied in filename order, ONCE, on first initialisation of an empty
+      # data volume. Every script is written to be idempotent so it can also
+      # be re-applied by hand to a live volume — see infra/README.md.
+      - ./infra/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U biosim -d biosim"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  # ------------------------------------------------------------------
+  # Neo4j Community Edition — canonical entity IDs, ontology
+  # cross-references, deprecation/merge chains, and (future) pathway
+  # topology.
+  #
+  # LICENSING, checked rather than assumed: the Community Edition server
+  # is GPLv3. That is free-as-in-beer AND free-as-in-speech for this use
+  # (self-hosted, internal, local development) and the official Python
+  # driver `neo4j` is Apache-2.0, so no copyleft obligation reaches
+  # Biosim's own source. The real wrinkles, stated up front:
+  #   * GPLv3 is copyleft ON REDISTRIBUTION. If Biosim were ever shipped
+  #     as an appliance/image that BUNDLES the Neo4j CE server, GPLv3
+  #     obligations attach to that combined distribution. Talking to a
+  #     separately-installed server over Bolt does not.
+  #   * CE has no role-based access control, no online/hot backup, and a
+  #     single user database. The append-only-style DB-enforced write
+  #     restrictions used on the Postgres side are therefore NOT
+  #     available here — see infra/MIGRATION_PLAN.md, open question 3.
+  #   * Neo4j's own Aura offering is a paid managed service and is
+  #     explicitly out of scope. Nothing here provisions it.
+  # Alternatives considered (Kùzu, Apache AGE, Memgraph) are compared in
+  # infra/MIGRATION_PLAN.md; Memgraph and ArangoDB were rejected as
+  # defaults specifically because their community/source-available
+  # licences (BSL/BUSL) are not OSI-approved open source.
+  # ------------------------------------------------------------------
+  neo4j:
+    image: neo4j:5.26-community
+    container_name: biosim-neo4j
+    restart: unless-stopped
+    environment:
+      # LOCAL DEV DEFAULT ONLY — see the CREDENTIALS note above.
+      # Neo4j requires at least 8 characters.
+      NEO4J_AUTH: neo4j/${BIOSIM_NEO4J_PASSWORD:-biosim_local_dev_only}
+      # Keep the footprint laptop-friendly. The IDRegistry dataset is tiny
+      # (tens of entities today, thousands at any plausible near-term
+      # scale), so this is generous rather than tight.
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    ports:
+      - "127.0.0.1:7474:7474"   # HTTP / Neo4j Browser
+      - "127.0.0.1:7687:7687"   # Bolt (the Python driver's protocol)
+    volumes:
+      - biosim_neo4jdata:/data
+      - biosim_neo4jlogs:/logs
+      - ./infra/neo4j:/cypher:ro
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "cypher-shell -u neo4j -p ${BIOSIM_NEO4J_PASSWORD:-biosim_local_dev_only} 'RETURN 1' >/dev/null 2>&1"
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 30s
+
+  # ------------------------------------------------------------------
+  # One-shot schema application for Neo4j. Unlike Postgres, Neo4j has no
+  # /docker-entrypoint-initdb.d equivalent, so constraints/indexes are
+  # applied by this short-lived container after neo4j reports healthy.
+  # It exits 0 and stays exited; `docker compose up` therefore leaves a
+  # correctly-schema'd graph with no manual step. Every statement uses
+  # IF NOT EXISTS, so re-running is safe.
+  # ------------------------------------------------------------------
+  neo4j-init:
+    image: neo4j:5.26-community
+    container_name: biosim-neo4j-init
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    restart: "no"
+    volumes:
+      - ./infra/neo4j:/cypher:ro
+    entrypoint:
+      - "cypher-shell"
+      - "-a"
+      - "neo4j://neo4j:7687"
+      - "-u"
+      - "neo4j"
+      - "-p"
+      - "${BIOSIM_NEO4J_PASSWORD:-biosim_local_dev_only}"
+      - "-f"
+      - "/cypher/001_constraints.cypher"
+
+volumes:
+  biosim_pgdata:
+  biosim_neo4jdata:
+  biosim_neo4jlogs:

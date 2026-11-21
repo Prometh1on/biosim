@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# Track 3 persistence layer: infra/README.md tells the operator to copy
+# infra/.env.example to a real .env at the repo root for local credential
+# overrides (docker-compose reads .env from its own directory = repo
+# root). This project's own COMMIT PATTERN is `git add .` -- without this
+# entry, the very next commit after creating that file would stage local
+# database credentials, even throwaway dev-only ones.
+.env
+.env.*
+!.env.example

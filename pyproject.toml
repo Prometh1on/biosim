@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "biosim"
+version = "0.1.0"
+description = "Systems biology simulation platform"
+license = "Apache-2.0"
+
+[tool.poetry.dependencies]
+python = "^3.14"
+
+[tool.pytest.ini_options]
+testpaths = ["packages", "scripts"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "integration: requires live external credentials/network (e.g. a real ANTHROPIC_API_KEY); skipped automatically when absent, see test_ingestion_e2e.py",
+]
