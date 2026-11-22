@@ -334,11 +334,13 @@ class TestCachedRunner:
 
 class TestPrivacyAuditor:
     @pytest.fixture(scope="class")
-    def clean_output(self):
+    @classmethod
+    def clean_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     @pytest.fixture(scope="class")
-    def genetic_output(self):
+    @classmethod
+    def genetic_output(cls):
         from biosim_genotype import Genotype, Variant
         from biosim_api import PersonalizationSpec
         variants = [Variant("rs7903146", Genotype.HETEROZYGOUS)]
@@ -442,7 +444,8 @@ class TestPrivacyAuditor:
 
 class TestReproducibilityBundle:
     @pytest.fixture(scope="class")
-    def bundle(self):
+    @classmethod
+    def bundle(cls):
         output = SimulationRunner().run(high_sugar_meal_scenario())
         return create_bundle(output, random_seed=42)
 

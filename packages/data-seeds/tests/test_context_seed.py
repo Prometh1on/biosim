@@ -15,7 +15,8 @@ from biosim_seeds import create_seeded_context_registry
 
 class TestContextSeed:
     @pytest.fixture(scope="class")
-    def registry(self):
+    @classmethod
+    def registry(cls):
         return create_seeded_context_registry()
 
     def test_registry_has_entities(self, registry):

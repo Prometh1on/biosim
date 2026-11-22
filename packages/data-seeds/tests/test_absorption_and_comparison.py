@@ -143,7 +143,8 @@ class TestRaBiexp:
 
 class TestScenarioComparison:
     @pytest.fixture(scope="class")
-    def report(self):
+    @classmethod
+    def report(cls):
         comp = ScenarioComparison(["high_sugar_meal", "standard_meal", "light_snack"])
         return comp.run()
 
@@ -220,7 +221,8 @@ class TestComparisonReportCSVInjection:
     # constructor-level validation, so this is constructed directly
     # rather than through a real ScenarioComparison run.
     @pytest.fixture(scope="class")
-    def report(self):
+    @classmethod
+    def report(cls):
         comp = ScenarioComparison(["high_sugar_meal", "standard_meal", "light_snack"])
         return comp.run()
 

@@ -436,7 +436,8 @@ class TestCortisolPathway:
 
 class TestCurationBridge:
     @pytest.fixture(scope="class")
-    def sensitivity_result(self):
+    @classmethod
+    def sensitivity_result(cls):
         from biosim_uncertainty import OATSensitivityAnalyzer, STANDARD_METRICS
         return OATSensitivityAnalyzer(0.10).analyze(
             parameter_names=["p1", "ke", "p3"],
@@ -445,7 +446,8 @@ class TestCurationBridge:
         )
 
     @pytest.fixture(scope="class")
-    def seeded_deps(self):
+    @classmethod
+    def seeded_deps(cls):
         from biosim_seeds import create_seeded_registry, create_seeded_store
         r = create_seeded_registry()
         return r, create_seeded_store(r)

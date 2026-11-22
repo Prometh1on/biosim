@@ -13,7 +13,8 @@ from biosim_genotype.effect_db import extended_t2d_variants, VariantEffectDB
 
 class TestPlatformSession:
     @pytest.fixture(scope="class")
-    def session(self):
+    @classmethod
+    def session(cls):
         return PlatformSession()
 
     def test_session_creates(self, session):
@@ -249,7 +250,8 @@ class TestPrioritizeCurationFromSensitivity:
 
 class TestExtendedVariants:
     @pytest.fixture(scope="class")
-    def db(self):
+    @classmethod
+    def db(cls):
         return extended_t2d_variants()
 
     def test_extended_db_has_more_than_default(self, db):

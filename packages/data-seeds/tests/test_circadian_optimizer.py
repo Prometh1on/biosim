@@ -15,7 +15,8 @@ class TestTimeSlot:
 
 class TestCircadianOptimizer:
     @pytest.fixture(scope="class")
-    def schedule(self):
+    @classmethod
+    def schedule(cls):
         # Use 4 time points for speed in tests
         opt = CircadianOptimizer(n_times=4)
         return opt.optimize(carbs_g=60.0)

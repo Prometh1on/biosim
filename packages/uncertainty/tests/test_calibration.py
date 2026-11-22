@@ -91,7 +91,8 @@ class TestBayesianCalibratorValidation:
 
 class TestBayesianCalibratorCalibrate:
     @pytest.fixture(scope="class")
-    def result(self) -> CalibrationResult:
+    @classmethod
+    def result(cls) -> CalibrationResult:
         calibrator = BayesianCalibrator(random_seed=42)
         distributions = {
             "p1": LogNormalDistribution.from_mean_cv(0.0317, cv=0.30),

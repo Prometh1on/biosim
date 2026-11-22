@@ -756,7 +756,8 @@ class TestODESystemMeal:
     """
 
     @pytest.fixture(scope="class")
-    def meal_result(self):
+    @classmethod
+    def meal_result(cls):
         system = ODESystem()
         return system.simulate_meal(high_sugar_meal(), duration_s=14400)
 

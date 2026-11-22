@@ -178,7 +178,8 @@ class TestPopulationSpec:
 
 class TestPopulationRunnerCohort:
     @pytest.fixture(scope="class")
-    def small_spec(self):
+    @classmethod
+    def small_spec(cls):
         return PopulationSpec(n_individuals=10, random_seed=42)
 
     def test_generates_correct_count(self, small_spec):
@@ -223,7 +224,8 @@ class TestPopulationRunnerCohort:
 
 class TestPopulationRunnerSimulation:
     @pytest.fixture(scope="class")
-    def small_summary(self):
+    @classmethod
+    def small_summary(cls):
         from biosim_api import get_scenario
         spec = PopulationSpec(n_individuals=6, random_seed=42,
                               t2d_fraction=0.0, insulin_resistant_fraction=0.0)

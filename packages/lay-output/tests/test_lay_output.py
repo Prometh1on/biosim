@@ -147,15 +147,18 @@ class TestFoodDatabase:
 
 class TestRiskIndicators:
     @pytest.fixture(scope="class")
-    def high_meal_output(self):
+    @classmethod
+    def high_meal_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     @pytest.fixture(scope="class")
-    def light_meal_output(self):
+    @classmethod
+    def light_meal_output(cls):
         return SimulationRunner().run(light_snack_scenario())
 
     @pytest.fixture(scope="class")
-    def fasted_output(self):
+    @classmethod
+    def fasted_output(cls):
         return SimulationRunner().run(fasted_scenario(3600))
 
     def test_assess_risk_returns_profile(self, high_meal_output):
@@ -433,7 +436,8 @@ class TestMTORAMPKBlutedSecretionCaveat:
 
 class TestPlainLanguageReport:
     @pytest.fixture(scope="class")
-    def meal_output(self):
+    @classmethod
+    def meal_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     def test_generate_report_returns_report(self, meal_output):

@@ -29,7 +29,8 @@ from biosim_ode import GlucoseInsulinPathway, ODESystem, PathwayParameters, high
 
 class TestRegistrySeed:
     @pytest.fixture(scope="class")
-    def registry(self):
+    @classmethod
+    def registry(cls):
         return create_seeded_registry()
 
     def test_registry_has_entities(self, registry):
@@ -568,7 +569,8 @@ class TestRegistrySeed:
 
 class TestParameterSeed:
     @pytest.fixture(scope="class")
-    def seeded(self):
+    @classmethod
+    def seeded(cls):
         registry = create_seeded_registry()
         store = create_seeded_store(registry)
         return registry, store
@@ -2544,7 +2546,8 @@ class TestParameterSeed:
 
 class TestParameterLoader:
     @pytest.fixture(scope="class")
-    def loader(self):
+    @classmethod
+    def loader(cls):
         return ParameterLoader()
 
     def test_load_returns_pathway_params(self, loader):
@@ -2770,7 +2773,8 @@ class TestParameterLoader:
 
 class TestIntegrationWithODE:
     @pytest.fixture(scope="class")
-    def loaded_params(self):
+    @classmethod
+    def loaded_params(cls):
         return ParameterLoader().load_pathway_params()
 
     def test_loaded_params_pass_validate_y0(self, loaded_params):
@@ -2812,7 +2816,8 @@ class TestIgf1HalfLifeConsistency:
     the same pool. They once said 600 min and ~99 min (ln2/0.007)."""
 
     @pytest.fixture(scope="class")
-    def igf1_half_life(self):
+    @classmethod
+    def igf1_half_life(cls):
         registry = create_seeded_registry()
         store = create_seeded_store(registry)
         igf1_id = str(registry.search_by_name("IGF-1")[0])
@@ -2845,7 +2850,8 @@ class TestProvenanceVerificationStatus:
     }
 
     @pytest.fixture(scope="class")
-    def active(self):
+    @classmethod
+    def active(cls):
         from biosim_seeds.context_seed import create_seeded_context_registry
         store = create_seeded_store(create_seeded_registry(), create_seeded_context_registry())
         return [p for p in store._parameters.values() if not p.is_superseded]

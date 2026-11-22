@@ -1,5 +1,7 @@
 # Biosim
 
+[![tests](https://github.com/Prometh1on/biosim/actions/workflows/tests.yml/badge.svg)](https://github.com/Prometh1on/biosim/actions/workflows/tests.yml)
+
 Biosim is a systems-biology simulator for postprandial glucose/insulin
 dynamics. Given a meal, a set of physiological parameters, and (optionally)
 genetic variants, it integrates a system of ODEs to predict how blood glucose
@@ -19,13 +21,17 @@ failures, are reported as they came out.
 
 ## One-command demo
 
+After [Setup](#setup), from the repo root with the virtualenv active:
+
 ```bash
 python scripts/demo.py
 ```
 
-(from the repo root, with the virtualenv active.) It simulates a 75 g oral glucose tolerance
-test for a default healthy adult, and again for someone carrying two copies of the TCF7L2
-rs7903146 risk allele, and saves `docs/figures/demo_ogtt_variant.png`:
+It simulates a 75 g oral glucose tolerance test for a default healthy adult, and again for
+someone carrying two copies of the TCF7L2 rs7903146 risk allele. It saves the figure to
+`outputs/demo_ogtt_variant.png`, a gitignored folder, so running the demo never changes a
+tracked file. The committed copy below is `docs/figures/demo_ogtt_variant.png`; to regenerate
+it, run `python scripts/demo.py docs/figures/demo_ogtt_variant.png`.
 
 ![Demo: OGTT with and without a TCF7L2 variant](docs/figures/demo_ogtt_variant.png)
 
@@ -191,14 +197,35 @@ distributable Python package.
 
 Requires Python 3.14 (the version `pyproject.toml` pins and the project is tested on).
 
-```bash
-git clone <repo-url> Biosim
-cd Biosim
-python -m venv .venv
-.venv\Scripts\activate      # Windows
-# source .venv/bin/activate # macOS/Linux
-pip install -r requirements.txt
+**Windows (PowerShell)**
+
+```powershell
+git clone https://github.com/Prometh1on/biosim.git
+cd biosim
+py -3.14 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-lock.txt
 ```
+
+If PowerShell refuses to run `Activate.ps1` because of its execution policy, skip activation and
+call `.venv\Scripts\python.exe` directly instead of `python`.
+
+**macOS / Linux**
+
+```bash
+git clone https://github.com/Prometh1on/biosim.git
+cd biosim
+python3.14 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-lock.txt
+```
+
+Two dependency files:
+
+- `requirements-lock.txt` pins every package to the exact version the suite was last run
+  with. Use it for a reproducible install. CI installs from it.
+- `requirements.txt` lists only the direct dependencies, with minimum versions. Use it if you
+  want newer versions; the lock file is regenerated from it (instructions in its header).
 
 There are no per-package manifests — packages are not `pip install`-ed
 individually. Instead, `conftest.py` at the repo root inserts each package's
@@ -210,9 +237,16 @@ relevant `packages/<name>/src` paths to `PYTHONPATH` yourself.
 
 ## Running tests
 
+With the virtualenv active (same command on Windows, macOS and Linux):
+
 ```bash
 python -m pytest --tb=short -q
 ```
+
+CI ([.github/workflows/tests.yml](.github/workflows/tests.yml)) runs the same suite on Ubuntu
+and Windows with Python 3.14, installing from `requirements-lock.txt`. It adds
+`-W error::pytest.PytestRemovedIn10Warning` so pytest-10 deprecations fail the build. It then
+runs the demo and checks that no tracked file changed.
 
 Tests live under each package's own `tests/` directory and are collected
 repo-wide via the `testpaths = ["packages", "scripts"]` setting in `pyproject.toml`.

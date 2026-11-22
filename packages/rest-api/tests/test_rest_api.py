@@ -41,7 +41,8 @@ class TestValidationEndpoint:
     """
 
     @pytest.fixture(scope="class")
-    def validation_data(self, client):
+    @classmethod
+    def validation_data(cls, client):
         resp = client.get("/validation")
         assert resp.status_code == 200
         return resp.json()

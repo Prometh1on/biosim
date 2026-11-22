@@ -154,11 +154,13 @@ class TestNEFAPathway:
 
 class TestMolecularTimeline:
     @pytest.fixture(scope="class")
-    def meal_output(self):
+    @classmethod
+    def meal_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     @pytest.fixture(scope="class")
-    def timeline(self, meal_output):
+    @classmethod
+    def timeline(cls, meal_output):
         return TimelineExtractor().extract(meal_output)
 
     def test_returns_timeline(self, meal_output):

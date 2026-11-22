@@ -249,7 +249,8 @@ class TestMonteCarlo:
     """
 
     @pytest.fixture(scope="class")
-    def uq_result(self):
+    @classmethod
+    def uq_result(cls):
         engine = MonteCarloEngine(n_samples=30, random_seed=42)
         distributions = {
             "p1": LogNormalDistribution.from_mean_cv(0.0317, 0.30),
@@ -726,7 +727,8 @@ def _glp1_extension_factory_fixed(params, meals):
 
 class TestOATSensitivity:
     @pytest.fixture(scope="class")
-    def sensitivity_result(self):
+    @classmethod
+    def sensitivity_result(cls):
         analyzer = OATSensitivityAnalyzer(perturbation_fraction=0.10)
         return analyzer.analyze(
             parameter_names=["p1", "ke", "EC50_mTOR", "k_mTOR"],

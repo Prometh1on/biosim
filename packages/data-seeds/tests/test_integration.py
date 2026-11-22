@@ -138,7 +138,8 @@ class TestResearcherWorkflow:
 
 class TestPlatformSessionWorkflow:
     @pytest.fixture(scope="class")
-    def session(self):
+    @classmethod
+    def session(cls):
         from biosim_seeds import PlatformSession
         return PlatformSession()
 

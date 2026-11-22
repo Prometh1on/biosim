@@ -122,12 +122,14 @@ class TestBenchmarkDataset:
 
 class TestModelValidator:
     @pytest.fixture(scope="class")
-    def ogtt_output(self):
+    @classmethod
+    def ogtt_output(cls):
         from biosim_api import ogtt_75g
         return SimulationRunner().run(ogtt_75g())
 
     @pytest.fixture(scope="class")
-    def ogtt_report(self, ogtt_output):
+    @classmethod
+    def ogtt_report(cls, ogtt_output):
         ds = ogtt_75g_healthy_adults()
         return ModelValidator().validate(ds, ogtt_output)
 
@@ -282,7 +284,8 @@ class TestValidateBergmanIV:
     """
 
     @pytest.fixture(scope="class")
-    def iv_report(self):
+    @classmethod
+    def iv_report(cls):
         return ModelValidator().validate_bergman_iv()
 
     def test_returns_report(self, iv_report):
@@ -315,7 +318,8 @@ class TestCalibrateOGTT:
     """
 
     @pytest.fixture(scope="class")
-    def calibration(self):
+    @classmethod
+    def calibration(cls):
         from biosim_uncertainty import CalibrationResult
         result = ModelValidator().calibrate_ogtt(n_prior_samples=40)
         assert isinstance(result, CalibrationResult)
@@ -363,7 +367,8 @@ class TestPosteriorPredictiveCheckBergmanIV:
     """
 
     @pytest.fixture(scope="class")
-    def pp_report(self):
+    @classmethod
+    def pp_report(cls):
         calibration = ModelValidator().calibrate_ogtt(n_prior_samples=30)
         return ModelValidator().posterior_predictive_check_bergman_iv(calibration)
 
@@ -440,7 +445,8 @@ class TestValidateSemaglutide:
     """
 
     @pytest.fixture(scope="class")
-    def semaglutide_report(self):
+    @classmethod
+    def semaglutide_report(cls):
         return ModelValidator().validate_semaglutide()
 
     def test_returns_report(self, semaglutide_report):
@@ -494,7 +500,8 @@ class TestValidateSteroidMealT2D:
     """
 
     @pytest.fixture(scope="class")
-    def steroid_report(self):
+    @classmethod
+    def steroid_report(cls):
         return ModelValidator().validate_steroid_meal_t2d()
 
     def test_returns_report(self, steroid_report):
@@ -576,7 +583,8 @@ class TestValidateMetformin:
     """
 
     @pytest.fixture(scope="class")
-    def metformin_report(self):
+    @classmethod
+    def metformin_report(cls):
         return ModelValidator().validate_metformin()
 
     def test_returns_report(self, metformin_report):
@@ -637,7 +645,8 @@ class TestValidateSGLT2i:
     """
 
     @pytest.fixture(scope="class")
-    def sglt2i_report(self):
+    @classmethod
+    def sglt2i_report(cls):
         return ModelValidator().validate_sglt2i()
 
     def test_returns_report(self, sglt2i_report):
@@ -691,7 +700,8 @@ class TestValidateProteinCoingestion:
     """
 
     @pytest.fixture(scope="class")
-    def protein_report(self):
+    @classmethod
+    def protein_report(cls):
         return ModelValidator().validate_protein_coingestion()
 
     def test_returns_report_with_four_points(self, protein_report):
@@ -739,7 +749,8 @@ class TestValidateT2DMealInsulin:
     """
 
     @pytest.fixture(scope="class")
-    def t2d_report(self):
+    @classmethod
+    def t2d_report(cls):
         return ModelValidator().validate_t2d_meal_insulin()
 
     def test_returns_report_with_five_points(self, t2d_report):
@@ -816,7 +827,8 @@ class TestValidateCaffeineOgtt:
     """
 
     @pytest.fixture(scope="class")
-    def caffeine_report(self):
+    @classmethod
+    def caffeine_report(cls):
         return ModelValidator().validate_caffeine_ogtt()
 
     def test_returns_report_with_two_points(self, caffeine_report):
@@ -871,7 +883,8 @@ class TestValidateAll:
     """
 
     @pytest.fixture(scope="class")
-    def all_reports(self):
+    @classmethod
+    def all_reports(cls):
         return ModelValidator().validate_all()
 
     def test_returns_dict_of_reports(self, all_reports):
@@ -1069,7 +1082,8 @@ class TestDrugBenchmarksLabelled:
     }
 
     @pytest.fixture(scope="class")
-    def all_reports(self):
+    @classmethod
+    def all_reports(cls):
         return ModelValidator().validate_all()
 
     def test_drug_reports_are_labelled(self, all_reports):

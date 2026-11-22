@@ -21186,3 +21186,12 @@ rewritten for a public audience: not-medical-advice note, AI-assisted disclosure
 summary (B2 7/12, pre-registered H2 1/11 with diagnosis, semaglutide VALIDATED with caveat, 22
 drugs EXPERIMENTAL), working usage-example and uvicorn instructions (PYTHONPATH). /health no
 longer reports a stale hard-coded test count (was 2764). Tests: 3036 passed, 2 skipped.
+
+### DONE — CI workflow, pinned lock file, pytest-10 fixture fix, untracked demo output
+
+2026-11-22. 49 class-scoped fixtures now @classmethod (0 PytestRemovedIn10Warning with pytest 9.2).
+scripts/demo.py writes to gitignored outputs/ by default. requirements-lock.txt (pip freeze of a
+clean 3.14 venv, suite passing) added; .github/workflows/tests.yml runs the suite on ubuntu-latest
+and windows-latest from the lock with -W error::pytest.PytestRemovedIn10Warning, then the demo and
+a clean-tree check. README: CI badge, Windows and macOS/Linux setup, the two dependency files.
+Linux not run locally (CI's first run is the check). Tests: 3037 passed, 2 skipped.

@@ -8,7 +8,12 @@ one genetic variant.
 It simulates the OGTT for a default healthy adult, then again for someone
 carrying two copies of the TCF7L2 rs7903146 T allele (the model lowers insulin
 secretion by 12% per copy -- a modelling choice, see effect_db.py), and saves
-docs/figures/demo_ogtt_variant.png. All data are simulated; no personal data.
+outputs/demo_ogtt_variant.png (gitignored, so running the demo never changes a
+tracked file). To regenerate the committed README figure, pass its path:
+
+    python scripts/demo.py docs/figures/demo_ogtt_variant.png
+
+All data are simulated; no personal data.
 """
 from __future__ import annotations
 
@@ -29,7 +34,7 @@ from biosim_api import PersonalizationSpec, SimulationRunner, ogtt_75g  # noqa: 
 from biosim_genotype import Genotype, Variant  # noqa: E402
 from biosim_genotype.effect_db import VariantEffectDB  # noqa: E402
 
-DEFAULT_OUT = ROOT / "docs" / "figures" / "demo_ogtt_variant.png"
+DEFAULT_OUT = ROOT / "outputs" / "demo_ogtt_variant.png"
 
 
 def main(out: Path = DEFAULT_OUT) -> dict:
@@ -77,4 +82,4 @@ def main(out: Path = DEFAULT_OUT) -> dict:
 
 
 if __name__ == "__main__":
-    main()
+    main(Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUT)

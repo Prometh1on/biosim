@@ -337,11 +337,13 @@ class TestDrugEvent:
 
 class TestSimulationRunnerCore:
     @pytest.fixture(scope="class")
-    def fasted_output(self):
+    @classmethod
+    def fasted_output(cls):
         return SimulationRunner().run(fasted_scenario(duration_s=3600.0))
 
     @pytest.fixture(scope="class")
-    def meal_output(self):
+    @classmethod
+    def meal_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     def test_fasted_succeeds(self, fasted_output):
@@ -2480,7 +2482,8 @@ class TestInsulinDoseEventComposition:
 
 class TestLaySummary:
     @pytest.fixture(scope="class")
-    def meal_output(self):
+    @classmethod
+    def meal_output(cls):
         return SimulationRunner().run(high_sugar_meal_scenario())
 
     def test_energy_array_length_matches_times(self, meal_output):
@@ -2608,7 +2611,8 @@ class TestScenarioLibrary:
 
 class TestComparisonRunner:
     @pytest.fixture(scope="class")
-    def comparison(self):
+    @classmethod
+    def comparison(cls):
         runner = ComparisonRunner()
         return runner.compare(
             high_sugar_meal_scenario(),
